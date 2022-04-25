@@ -74,8 +74,7 @@ struct AuthController: RouteCollection {
     func createLoginResponse(for user: User, on req: Request) async throws -> LoginResponse {
         let token = try user.generateToken()
         try await token.create(on: req.db)
-        let streamToken = try req.stream.createToken(id: user.username)
-        return LoginResponse(apiToken: token, streamToken: streamToken.jwt)
+        return LoginResponse(apiToken: token)
     }
     
     // MARK: - OAuth
@@ -134,8 +133,7 @@ struct AuthController: RouteCollection {
             req.logger.warning("APP_REDIRECT_URL not set")
             throw Abort(.internalServerError)
         }
-        let streamToken = try req.stream.createToken(id: user.username)
-        let redirectURL = "\(appURL)://auth?token=\(token.value)&streamToken=\(streamToken.jwt)"
+        let redirectURL = "\(appURL)://auth?token=\(token.value)"
         return req.redirect(to: redirectURL)
     }
 }
